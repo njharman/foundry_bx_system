@@ -7,8 +7,8 @@ export class BXItemSheet extends ItemSheet {
   /** @override */
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      classes: ["wilderlandsbx", "sheet", "item"],
-      template: "systems/wilderlandsbx/templates/item-sheet.html",
+      classes: ["bx", "sheet", "item"],
+      template: "systems/bx/templates/item-sheet.html",
       width: 520,
       height: 480,
       tabs: [{navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description"}]

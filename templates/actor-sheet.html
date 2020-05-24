@@ -1,86 +1,356 @@
 <form class="{{cssClass}}" autocomplete="off">
 
-    {{!-- Sheet Header --}}
-    <header class="sheet-header">
-        <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100"/>
-        <div class="header-fields">
-            <h1 class="charname"><input name="name" type="text" value="{{actor.name}}" placeholder="Name"/></h1>
-            <div class="resource">
-                <input type="text" name="data.health.value" value="{{data.health.value}}" data-dtype="Number"/>
-                <span> / </span>
-                <input type="text" name="data.health.max" value="{{data.health.max}}" data-dtype="Number"/>
-            </div>
-            <div class="resource">
-                <input type="text" name="data.power.value" value="{{data.power.value}}" data-dtype="Number"/>
-                <span> / </span>
-                <input type="text" name="data.power.max" value="{{data.power.max}}" data-dtype="Number"/>
-            </div>
+{{!-- Sheet Header --}}
+<header class="sheet-header">
+  <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100"/>
+  <div class="header-fields">
+    <div class="flexrow flex-right">
+      <h1 class="charname"><input name="name" type="text" value="{{actor.name}}" placeholder="name?"/></h1>
+      <h1 class="class">{{data.level.value}} lvl {{data.class.label}}</h1>
+    </div>
+    <div class="resources flexrow flex-left">
+      <div class="resource">
+        <span class="resource-label">AC</span>
+        <span class="resource-value">{{data.ac.value}}</span>
+        <span class="large">+/-</span><input type="text" name="data.ac.bonus" value="{{data.ac.bonus}}" data-dtype="Number"/>
+      </div>
+      <div class="resource flexrow flex-left">
+        <span class="rollable roll-tohit">
+          <span class="resource-label">THAC0</span>
+          <span class="resource-value">{{data.thac0.value}}</span>
+        </span>
+        <span class="large">+/-</span><input type="text" name="data.thac0.bonus" value="{{data.thac0.bonus}}" data-dtype="Number"/>
+      </div>
+      <div class="resource">
+        <span class="resource-label">Move</span>
+        <span class="resource-value">{{data.movement.value}}</span>"
+      </div>
+      <div class="resource flexrow flex-group-center">
+        <label class="resource-label" for="data.hp.value">HP</label>
+        <input type="text" name="data.hp.value" value="{{data.hp.value}}" data-dtype="Number"/>
+        /
+        <span class="resource-value">{{data.hp.max}}</span>
+      </div>
+      <div class="resource rollable roll-hitdie">
+        <span class="resource-label">Hit Die</span>
+        <span class="resource-value">{{data.hd.value}}</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+{{!-- Sheet Tab Navigation --}}
+<nav class="sheet-tabs tabs" data-group="primary">
+  <a class="item" data-tab="main">Attributes</a>
+  <a class="item" data-tab="inventory">Inventory</a>
+  <a class="item" data-tab="notes">Character</a>
+</nav>
+
+{{!-- Sheet Body --}}
+<section class="sheet-body">
+
+  {{!-- Main Tab --}}
+  <div class="tab attributes" data-group="primary" data-tab="main">
+
+    <div class="grid grid-2col flexrow flex-between">
+      <div class="abilities flexcol">
+        <h2>Abilities</h2>
+        <ol class="abilities-list">
+          {{#each data.abilities as |ability key|}}
+          <li class="ability" data-attribute="{{key}}">
+            <input class="ability-score" type="text" name="data.abilities.{{key}}.score" value="{{ability.score}}" data-dtype="Number"/>
+            <span class="ability-mod">
+              {{#if ability.mod}}{{numberFormat ability.mod decimals=0 sign=true}}{{/if}}
+            </span>
+            <span class="rollable abilitycheck" data-roll="d20 <= {{ability.score}}" data-ability="{{key}}" data-label="{{ability.name}} check">
+              {{#with (lookup ../config.abilityNames [key])}}{{name}}{{/with}}
+            </span>
+          </li>
+          {{/each}}
+        </ol>
+      </div>
+      <div class="saves flexcol flex-between">
+        <h2>Saves</h2>
+        <ol class="saves-list">
+          {{#each data.saves as |save key|}}
+          <li data-attribute="{{key}}">
+            <span class="save-value">{{save.value}}</span>
+            <span class="save-mod">
+              +/-<input type="text" name="data.saves.{{key}}.bonus" value="{{save.bonus}}" data-dtype="Number"/>
+            </span>
+            <span class="rollable savingthrow" data-save="{{key}}">
+                {{#with (lookup ../config.saveNames [key])}}{{name}}{{/with}}
+            </span>
+          </li>
+          {{/each}}
+        </ol>
+      </div>
+    </div>
+
+    <div class="actions flexcol">
+      <h2>Actions</h2>
+      {{#if (isequal "cl" data.class.value)}}
+      <div class="flexrow">
+        <span class="rollable rebukeundead">
+        {{#if (classmechanics "wbx")}}Rebuke Undead{{else}}Turn Undead{{/if}}
+        </span>
+        <span class="large">+/-</span><input class="bonus" type="text" name="data.rebukeundead.bonus" value="{{data.rebukeundead.bonus}}" data-dtype="Number"/>
+      </div>
+      {{/if}}
+
+      {{#if (classmechanics "wbx")}}
+      <div>
+        {{#with data.skills.bash}}
+        {{value}} in 6 chance to
+        <span class="rollable skillcheck" data-roll="d6 <= {{value}}" data-skill="bash" data-label="{{../config.skillNames.bash.name}} check">
+          {{../config.skillNames.bash.name}}
+        </span>
+        {{/with}}
+      </div>
+      {{/if}}
+
+      <div>
+        {{#with data.skills.force}}
+        {{value}} in 6 chance to
+        <span class="rollable skillcheck" data-roll="d6 <= {{value}}" data-skill="force" data-label="{{../config.skillNames.force.name}} check">
+          {{../config.skillNames.force.name}}
+        </span>
+        {{/with}}
+      </div>
+
+      {{#unless (isequal "th" data.class.value)}}
+      {{#if (classmechanics "bx")}}
+      {{#with data.skills.listen}}
+      <div>
+        {{value}} in 6 chance to
+        <span class="rollable skillcheck" data-roll="d6 <= {{value}}" data-blind="true" data-skill="listen" data-label="{{../config.skillNames.listen.name}} check">
+          {{../config.skillNames.listen.name}}
+        </span>
+      </div>
+      <div>
+        {{value}} in 6 chance to
+        <span class="rollable skillcheck" data-roll="d6 <= {{value}}" data-blind="true" data-skill="listen" data-label="Search check">
+          Search
+        </span>
+      </div>
+      {{/with}}
+      {{/if}}
+      {{#if (classmechanics "wbx")}}
+      {{#with data.skills.listen}}
+      <div>
+        {{value}} in 6 chance to
+        <span class="rollable skillcheck" data-roll="d6 <= {{value}}" data-blind="true" data-skill="listen" data-label="Listen check">
+          Listen
+        </span>
+      </div>
+      <div>
+        {{value}} in 6 chance to
+        <span class="rollable skillcheck" data-roll="d6 <= {{value}}" data-blind="true" data-skill="listen" data-label="Search check">
+          Search
+        </span>
+      </div>
+      {{/with}}
+      {{/if}}
+      {{/unless}}
+
+      {{#if (isequal "alt" data.class.value)}}
+      <div>
+        {{#with data.skills.climb}}
+        <input type="text" name="data.skills.climb.value" value="{{value}}" data-dtype="Number"/>
+        <label for="data.skills.climb.value">
+          in 6 chance to
+          <span class="rollable skillcheck" data-roll="d6 <= {{value}}" data-skill="climb" data-label="{{../config.skillNames.climb.name}} check">
+            {{../config.skillNames.climb.name}}
+          </span>
+        </label>
+        {{/with}}
+      </div>
+      <div>
+        {{#with data.skills.sneak}}
+        <input type="text" name="data.skills.sneak.value" value="{{value}}" data-dtype="Number"/>
+        <label for="data.skills.sneak.value">
+          in 6 chance to
+          <span class="rollable skillcheck" data-roll="d6 <= {{value}}" data-skill="sneak" data-label="{{../config.skillNames.sneak.name}} check">
+            {{../config.skillNames.sneak.name}}
+          </span>
+        </label>
+        {{/with}}
+      </div>
+      {{/if}}
+
+      {{#if (isequal "th" data.class.value)}}
+      {{#if (thiefmechanics "bx")}}
+      Thief Skills
+      {{/if}}
+      {{#if (thiefmechanics "wbx")}}
+      <div>
+        {{#with data.skills.climb}}
+        <input type="text" name="data.skills.climb.value" value="{{value}}" data-dtype="Number"/>
+        <label for="data.skills.climb.value">
+          in 6 chance to
+          <span class="rollable skillcheck" data-roll="d6 <= {{value}}" data-skill="climb" data-label="{{../config.skillNames.climb.name}} check">
+            {{../config.skillNames.climb.name}}
+          </span>
+        </label>
+        {{/with}}
+      </div>
+      <div>
+        {{#with data.skills.listen}}
+        <input type="text" name="data.skills.listen.value" value="{{value}}" data-dtype="Number"/>
+        <label for="data.skills.listen.value">
+          in 6 chance to
+          <span class="rollable skillcheck" data-roll="d6 <= {{value}}" data-blind="true" data-skill="listen" data-label="{{../config.skillNames.listen.name}} check">
+            {{../config.skillNames.listen.name}}
+          </span>
+        </label>
+        {{/with}}
+      </div>
+      <div>
+        {{#with data.skills.pick}}
+        <input type="text" name="data.skills.pick.value" value="{{value}}" data-dtype="Number"/>
+        <label for="data.skills.pick.value">
+          in 6 chance to
+          <span class="rollable skillcheck" data-roll="d6 <= {{value}}" data-skill="pick" data-label="{{../config.skillNames.pick.name}} check">
+            {{../config.skillNames.pick.name}}
+          </span>
+        </label>
+        {{/with}}
+      </div>
+      <div>
+        {{#with data.skills.read}}
+        <input type="text" name="data.skills.read.value" value="{{value}}" data-dtype="Number"/>
+        <label for="data.skills.read.value">
+          in 6 chance to
+          <span class="rollable skillcheck" data-roll="d6 <= {{value}}" data-skill="read" data-label="{{../config.skillNames.read.name}} check">
+            {{../config.skillNames.read.name}}
+          </span>
+        </label>
+        {{/with}}
+      </div>
+      <div>
+        {{#with data.skills.sense}}
+        <input type="text" name="data.skills.sense.value" value="{{value}}" data-dtype="Number"/>
+        <label for="data.skills.sense.value">
+          in 6 chance to
+          <span class="rollable skillcheck" data-roll="d6 <= {{value}}" data-blind="true" data-skill="sense" data-label="{{../config.skillNames.sense.name}} check">
+            {{../config.skillNames.sense.name}}
+          </span>
+        </label>
+        {{/with}}
+      </div>
+      <div>
+        {{#with data.skills.sneak}}
+        <input type="text" name="data.skills.sneak.value" value="{{value}}" data-dtype="Number"/>
+        <label for="data.skills.sneak.value">
+          in 6 chance to
+          <span class="rollable skillcheck" data-roll="d6 <= {{value}}" data-skill="sneak" data-label="{{../config.skillNames.sneak.name}} check">
+            {{../config.skillNames.sneak.name}}
+          </span>
+        </label>
+        {{/with}}
+      </div>
+      {{/if}}
+      {{/if}}
+
+    </div>
+  </div>
+
+  {{!-- Owned Items Tab --}}
+  <div class="tab items" data-group="primary" data-tab="inventory">
+    <ol class="item-list">
+      {{#each actor.items as |item id|}}
+      <li class="item flexrow" data-item-id="{{item._id}}">
+        <img src="{{item.img}}" title="{{item.name}}" width="24" height="24"/>
+        <h4 class="item-name">{{item.name}}</h4>
+        <div class="item-controls">
+          <a class="item-control item-edit" title="Edit Item"><i class="fas fa-edit"></i></a>
+          <a class="item-control item-delete" title="Delete Item"><i class="fas fa-trash"></i></a>
         </div>
-    </header>
+      </li>
+      {{/each}}
+    </ol>
+  </div>
 
-    {{!-- Sheet Tab Navigation --}}
-    <nav class="sheet-tabs tabs" data-group="primary">
-        <a class="item" data-tab="description">Description</a>
-        <a class="item" data-tab="items">Items</a>
-        <a class="item" data-tab="attributes">Attributes</a>
-    </nav>
+  {{!-- Misc Tab --}}
+  <div class="tab notes" data-group="primary" data-tab="notes">
+    <div class="flexrow">
+      <div class="resource">
+        <select class="actor-class" name="data.class.value">
+          {{#select data.class.value}}
+          {{#each config.actorClasses as |label class|}}
+          <option value="{{class}}">{{label}}</option>
+          {{/each}}
+          {{/select}}
+        </select>
+        <select class="level-pick" name="data.level.value">
+          {{#select data.level.value}}
+          <option value="1">1st</option>
+          <option value="2">2nd</option>
+          <option value="3">3rd</option>
+          <option value="4">4th</option>
+          <option value="5">5th</option>
+          <option value="6">6th</option>
+          <option value="7">7th</option>
+          <option value="8">8th</option>
+          <option value="9">9th</option>
+          <option value="10">10th</option>
+          <option value="11">11th</option>
+          <option value="12">12th</option>
+          <option value="13">13th</option>
+          <option value="14">14th</option>
+          {{/select}}
+        </select>
 
-    {{!-- Sheet Body --}}
-    <section class="sheet-body">
+      </div>
+      <div class="resource">
+        <label class="resource-label" for="data.xp.value">XP</label>
+        <input class="xp" type="text" name="data.xp.value" value="{{data.xp.value}}" data-dtype="Number"/>
+        {{#if (setting "xpBonus")}}
+          <label class="resource-label" for="data.xp.bonus">Bonus</label>
+          <input type="text" name="data.xp.bonus" value="{{numberFormat data.xp.bonus decimals=0 sign=true}}" data-dtype="Number"/>%
+        {{/if}}
+      </div>
+      <div class="resource">
+        <label class="resource-label" for="data.alignment.value">Alignment</label>
+        <input class="alignment" type="text" name="data.alignment.value" value="{{data.alignment.value}}" data-dtype="Text"/>
+      </div>
+    </div>
+    <div class="flexrow">
+      <div class="resource flexrow flex-group-center">
+        <label class="resource-label" for="data.hp.value">Total HP</label>
+        <input type="text" name="data.hp.max" value="{{data.hp.max}}" data-dtype="Number"/>
+      </div>
+      <div class="resource">
+        <label class="resource-label" for="data.movement.max">Base Move</label>
+        <input type="text" name="data.movement.max" value="{{data.movement.max}}" data-dtype="Number"/> "
+      </div>
+    </div>
 
-        {{!-- Biography Tab --}}
-        <div class="tab biography" data-group="primary" data-tab="description">
-            {{editor content=data.biography target="data.biography" button=true owner=owner editable=editable}}
-        </div>
+    <h2>Languages</h2>
+    {{#if (langtolearn data.languages)}}
+      <div>
+        ({{langtolearn data.languages}} left to learn)
+        <select class="language-pick" name="data.class.value">
+          {{#each config.languageChoices as |language|}}
+          <option value="{{language}}">{{language}}</option>
+          {{/each}}
+        </select>
+      </div>
+    {{/if}}
+    <div class="language-list">
+      {{#each data.languages.class as |language|}}
+        {{#if @index}}, {{/if}}
+        <span class="language-name">{{language}}</span>
+      {{/each}}
+      {{#each data.languages.learned as |language|}}
+        {{#if @index}}, {{/if}}
+        <span class="language-name">{{language}}</span>
+      {{/each}}
+    </div>
 
-        {{!-- Owned Items Tab --}}
-        <div class="tab items" data-group="primary" data-tab="items">
-            <ol class="item-list">
-            {{#each actor.items as |item id|}}
-                <li class="item flexrow" data-item-id="{{item._id}}">
-                    <img src="{{item.img}}" title="{{item.name}}" width="24" height="24"/>
-                    <h4 class="item-name">{{item.name}}</h4>
-                    <div class="item-controls">
-                        <a class="item-control item-edit" title="Edit Item"><i class="fas fa-edit"></i></a>
-                        <a class="item-control item-delete" title="Delete Item"><i class="fas fa-trash"></i></a>
-                    </div>
-                </li>
-            {{/each}}
-            </ol>
-        </div>
+    <h2>Notes</h2>
+      {{editor content=data.notes target="data.notes" button=true owner=owner editable=editable}}
+  </div>
 
-        {{!-- Attributes Tab --}}
-        <div class="tab attributes" data-group="primary" data-tab="attributes">
-            <header class="attributes-header flexrow">
-                <span class="attribute-key">Attribute Key</span>
-                <span class="attribute-value">Value</span>
-                <span class="attribute-label">Label</span>
-                <span class="attribute-dtype">Data Type</span>
-                <a class="attribute-control" data-action="create"><i class="fas fa-plus"></i></a>
-            </header>
-
-            <ol class="attributes-list">
-            {{#each data.attributes as |attr key|}}
-                <li class="attribute flexrow" data-attribute="{{key}}">
-                    <input class="attribute-key" type="text" name="data.attributes.{{key}}.key" value="{{key}}"/>
-                    {{#if attr.isCheckbox}}
-                    <label class="attribute-value checkbox"><input type="checkbox" name="data.attributes.{{key}}.value" {{checked attr.value}}/></label>
-                    {{else}}
-                    <input class="attribute-value" type="text" name="data.attributes.{{key}}.value" value="{{attr.value}}" data-dtype="{{attr.dtype}}"/>
-                    {{/if}}
-                    <input class="attribute-label" type="text" name="data.attributes.{{key}}.label" value="{{attr.label}}"/>
-                    <select class="attribute-dtype" name="data.attributes.{{key}}.dtype">
-                        {{#select attr.dtype}}
-                        {{#each ../dtypes as |t|}}
-                        <option value="{{t}}">{{t}}</option>
-                        {{/each}}
-                        {{/select}}
-                    </select>
-                    <a class="attribute-control" data-action="delete"><i class="fas fa-trash"></i></a>
-                </li>
-            {{/each}}
-            </ol>
-        </div>
-    </section>
+</section>
 </form>
-

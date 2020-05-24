@@ -1,28 +1,189 @@
 {
-"Actor": {
-  "types": ["character"],
-  "character": {
-    "biography": "",
-    "health": {
-      "value": 10,
-      "min": 0,
-      "max": 10
+  "Actor": {
+    "types": ["character", "npc"],
+    "templates": {
+      "abilities": {
+        "abilities": {
+          "str": {
+            "score": 10
+          },
+          "int": {
+            "score": 10
+          },
+          "wis": {
+            "score": 10
+          },
+          "dex": {
+            "score": 10
+          },
+          "con": {
+            "score": 10
+          },
+          "cha": {
+            "score": 10
+          }
+        }
+      },
+      "saves": {
+        "saves": {
+          "d": {
+            "bonus": 0,
+            "value": 0
+          },
+          "w": {
+            "bonus": 0,
+            "value": 0
+          },
+          "p": {
+            "bonus": 0,
+            "value": 0
+          },
+          "b": {
+            "bonus": 0,
+            "value": 0
+          },
+          "s": {
+            "bonus": 0,
+            "value": 0
+          }
+        }
+      },
+      "skills": {
+        "skills": {
+          "bash": {
+            "value": 2,
+            "min": 1,
+            "max": 6
+          },
+          "force": {
+            "value": 2,
+            "min": 1,
+            "max": 6
+          },
+          "listen": {
+            "value": 1,
+            "min": 1,
+            "max": 6
+          },
+          "climb": {
+            "value": 4,
+            "min": 0,
+            "max": 6
+          },
+          "pick": {
+            "value": 0,
+            "min": 0,
+            "max": 6
+          },
+          "read": {
+            "value": 0,
+            "min": 0,
+            "max": 6
+          },
+          "sense": {
+            "value": 0,
+            "min": 0,
+            "max": 6
+          },
+          "sneak": {
+            "value": 0,
+            "min": 0,
+            "max": 6
+          }
+        }
+      },
+      "languages": {
+        "languages": {
+          "extra": 0,
+          "bonus": 0,
+          "class": [],
+          "learned": []
+        }
+      }
     },
-    "power": {
-      "value": 5,
-      "min": 0,
-      "max": 5
+    "character": {
+      "templates": ["abilities", "saves", "skills", "languages"],
+      "class": {
+        "value": "ftr"
+      },
+      "level": {
+        "value": 1
+      },
+      "hd": {
+        "value": "d6"
+      },
+      "hp": {
+        "value": 10,
+        "max": 10,
+        "temp": 0
+      },
+      "ac": {
+        "bonus": 0,
+        "value": 0
+      },
+      "thac0": {
+        "bonus": 0,
+        "value": 0
+      },
+      "rebukeundead": {
+        "bonus": 0
+      },
+      "encumbrance": {
+        "value": 0,
+        "max": 160
+      },
+      "movement": {
+        "value": 0,
+        "max": 40
+      },
+      "alignment": {
+        "value": ""
+      },
+      "xp": {
+        "value": 0,
+        "max": 0,
+        "bonus": 0
+      },
+      "notes": ""
     },
-    "attributes": {}
+    "npc": {
+      "templates": ["abilities", "saves", "languages"],
+      "notes": ""
+    }
+  },
+  "Item": {
+    "types": ["weapon", "armor", "item", "language", "spell"],
+    "templates": {
+      "physical": {
+        "weight": 0,
+        "price": 0,
+        "identified": true
+      }
+    },
+    "weapon": {
+      "templates": ["physical"],
+      "description": "",
+      "damage": "d6",
+      "1h": true,
+      "melee": true,
+      "missile": false,
+      "thrown": false
+    },
+    "armor": {
+      "templates": ["physical"],
+      "description": "",
+      "ac": 7
+    },
+    "item": {
+      "templates": ["physical"],
+      "description": ""
+    },
+    "language": {
+      "templates": []
+    },
+    "spell": {
+      "templates": [],
+      "description": ""
+    }
   }
-},
-"Item": {
-  "types": ["item"],
-  "item": {
-    "description": "",
-    "quantity": 1,
-    "weight": 0,
-    "attributes": {}
-  }
-}
 }
