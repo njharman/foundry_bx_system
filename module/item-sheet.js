@@ -1,18 +1,18 @@
 /**
- * Extend the basic ItemSheet with some very simple modifications
+ * Extend the basic ItemSheet with some B/X modifications
  * @extends {ItemSheet}
  */
-export class SimpleItemSheet extends ItemSheet {
+export class BXItemSheet extends ItemSheet {
 
   /** @override */
-	static get defaultOptions() {
-	  return mergeObject(super.defaultOptions, {
-			classes: ["worldbuilding", "sheet", "item"],
-			template: "systems/worldbuilding/templates/item-sheet.html",
-			width: 520,
-			height: 480,
+  static get defaultOptions() {
+    return mergeObject(super.defaultOptions, {
+      classes: ["wilderlandsbx", "sheet", "item"],
+      template: "systems/wilderlandsbx/templates/item-sheet.html",
+      width: 520,
+      height: 480,
       tabs: [{navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description"}]
-		});
+    });
   }
 
   /* -------------------------------------------- */
@@ -41,7 +41,7 @@ export class SimpleItemSheet extends ItemSheet {
   /* -------------------------------------------- */
 
   /** @override */
-	activateListeners(html) {
+  activateListeners(html) {
     super.activateListeners(html);
 
     // Everything below here is only needed if the sheet is editable
@@ -97,7 +97,7 @@ export class SimpleItemSheet extends ItemSheet {
       obj[k] = v;
       return obj;
     }, {});
-    
+
     // Remove attributes which are no longer used
     for ( let k of Object.keys(this.object.data.data.attributes) ) {
       if ( !attributes.hasOwnProperty(k) ) attributes[`-=${k}`] = null;

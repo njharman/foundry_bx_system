@@ -1,13 +1,13 @@
 /**
- * Extend the base Actor entity by defining a custom roll data structure which is ideal for the Simple system.
+ * Extend the base Actor entity by defining a custom roll data structure which is ideal for the BX system.
  * @extends {Actor}
  */
-export class SimpleActor extends Actor {
+export class BXActor extends Actor {
 
   /** @override */
   getRollData() {
     const data = super.getRollData();
-    const shorthand = game.settings.get("worldbuilding", "macroShorthand");
+    const shorthand = game.settings.get("wilderlandsbx", "macroShorthand");
 
     // Re-map all attributes onto the base roll data
     if ( !!shorthand ) {
